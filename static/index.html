@@ -199,6 +199,28 @@
 
   .chip-group{ display: flex; flex-wrap: wrap; gap: 8px; }
 
+  .scale-group{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .scale-chip{
+    all: unset;
+    cursor: pointer;
+    min-width: 36px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    background: var(--cream);
+    border: 2px solid var(--line);
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+  }
+  .scale-chip.active{ background: var(--sky-bg); border-color: var(--sky); color: var(--sky); }
+
   .chip{
     all: unset;
     cursor: pointer;
@@ -357,6 +379,7 @@
 
   .meta-row{
     display: flex;
+    flex-wrap: wrap;
     gap: 22px;
     padding: 16px 34px 0;
     color: var(--ink-soft);
@@ -384,6 +407,7 @@
 
   .action-row{
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     padding: 20px 34px 4px;
   }
@@ -405,6 +429,41 @@
   .action-btn svg{ width: 15px; height: 15px; }
   .action-btn:hover{ border-color: var(--marigold); color: var(--marigold-deep); }
   .action-btn.liked{ background: var(--coral-bg); border-color: var(--coral); color: var(--coral); }
+
+  .saved-panel{
+    margin: 0 28px 28px;
+    padding: 16px 18px;
+    border: 2px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--cream);
+  }
+  .saved-panel-head{
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .saved-panel h3{
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--sky);
+  }
+  .saved-panel p{ margin: 0; font-size: 13.5px; font-weight: 700; color: var(--ink-soft); line-height: 1.45; }
+  .saved-panel-actions{ display: flex; flex-wrap: wrap; gap: 8px; }
+  .mini-btn{
+    all: unset;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    background: #fff;
+    border: 2px solid var(--line);
+    padding: 7px 11px;
+    border-radius: var(--radius-sm);
+  }
+  .mini-btn:hover{ border-color: var(--sky); color: var(--sky); }
 
   .card-body{ padding: 8px 34px 36px; }
 
@@ -494,6 +553,45 @@
   .tip-box svg{ width: 20px; height: 20px; color: var(--sage); flex-shrink: 0; margin-top: 1px; }
   .tip-box p{ margin: 0; font-size: 14px; font-weight: 700; color: #1E5B37; line-height: 1.5; }
 
+  .detail-box{
+    margin-top: 22px;
+    border: 2px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    background: #fff;
+  }
+  .detail-box h4{
+    margin: 0 0 12px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--marigold-deep);
+  }
+  .detail-box ul{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .detail-box li,
+  .detail-box p{
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin: 0;
+  }
+  .detail-box .pill{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--cream);
+    border: 1.5px solid var(--line);
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+  }
+
   .video-link{
     padding: 0 34px 24px;
     text-align: right;
@@ -539,6 +637,7 @@
     .app{ grid-template-columns: 1fr; padding: 12px 18px 60px; }
     .site-header{ padding: 20px 18px 6px; }
     .card-hero, .badge-row, .meta-row, .fridge-chips, .action-row, .card-body{ padding-left: 22px; padding-right: 22px; }
+    .saved-panel{ margin-left: 18px; margin-right: 18px; }
     .tag-input{ align-items: flex-start; }
     #ingredient-input{ min-width: 100%; flex-basis: 100%; }
   }
@@ -614,11 +713,27 @@
         <span id="servings-value">2</span>
         <button type="button" id="servings-plus" aria-label="Increase servings">+</button>
       </div>
+      <div class="scale-group" aria-label="Quick servings presets">
+        <button type="button" class="scale-chip" data-servings="1">1</button>
+        <button type="button" class="scale-chip active" data-servings="2">2</button>
+        <button type="button" class="scale-chip" data-servings="4">4</button>
+        <button type="button" class="scale-chip" data-servings="6">6</button>
+      </div>
     </div>
 
     <button id="generate-btn" class="generate-btn">
       <span class="btn-label">✨ Generate recipe with AI magic</span>
     </button>
+    <div class="saved-panel" id="saved-panel" hidden>
+      <div class="saved-panel-head">
+        <h3>Saved output</h3>
+        <div class="saved-panel-actions">
+          <button type="button" class="mini-btn" id="copy-saved-btn">Copy saved output</button>
+          <button type="button" class="mini-btn" id="clear-saved-btn">Clear</button>
+        </div>
+      </div>
+      <p id="saved-summary">No recipe saved yet.</p>
+    </div>
     <p id="error-msg" class="error-msg" hidden></p>
   </aside>
 
@@ -652,8 +767,95 @@
   const cardEmpty = document.getElementById('card-empty');
   const cardInner = document.getElementById('card-inner');
   const recipeCard = document.getElementById('recipe-card');
+  const savedPanel = document.getElementById('saved-panel');
+  const savedSummary = document.getElementById('saved-summary');
+  const copySavedBtn = document.getElementById('copy-saved-btn');
+  const clearSavedBtn = document.getElementById('clear-saved-btn');
+  const scaleButtons = document.querySelectorAll('.scale-chip');
 
   const CHIP_CLASSES = ['chip-c0','chip-c1','chip-c2','chip-c3','chip-c4','chip-c5'];
+  let currentRecipeMarkdown = '';
+  let savedRecipeMarkdown = localStorage.getItem('fridgeFeastSavedRecipe') || '';
+
+  function setServings(nextServings){
+    servings = Math.min(12, Math.max(1, nextServings));
+    servingsValue.textContent = servings;
+    scaleButtons.forEach(btn => {
+      btn.classList.toggle('active', Number(btn.dataset.servings) === servings);
+    });
+  }
+
+  function copyText(text){
+    if (!text) return Promise.reject(new Error('Nothing to copy.'));
+    if (navigator.clipboard?.writeText){
+      return navigator.clipboard.writeText(text);
+    }
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    document.execCommand('copy');
+    textarea.remove();
+    return Promise.resolve();
+  }
+
+  function refreshSavedPanel(){
+    if (!savedRecipeMarkdown){
+      savedPanel.hidden = true;
+      savedSummary.textContent = 'No recipe saved yet.';
+      return;
+    }
+    const parsed = parseRecipe(savedRecipeMarkdown);
+    savedPanel.hidden = false;
+    savedSummary.textContent = parsed.title
+      ? `Saved recipe: ${parsed.title}`
+      : 'Saved recipe available in this browser.';
+  }
+
+  function saveCurrentRecipe(){
+    if (!currentRecipeMarkdown.trim()) return false;
+    savedRecipeMarkdown = currentRecipeMarkdown;
+    localStorage.setItem('fridgeFeastSavedRecipe', savedRecipeMarkdown);
+    refreshSavedPanel();
+    return true;
+  }
+
+  function clearSavedRecipe(){
+    savedRecipeMarkdown = '';
+    localStorage.removeItem('fridgeFeastSavedRecipe');
+    refreshSavedPanel();
+  }
+
+  refreshSavedPanel();
+  setServings(servings);
+
+  scaleButtons.forEach(btn => {
+    btn.addEventListener('click', () => setServings(Number(btn.dataset.servings)));
+  });
+
+  copySavedBtn.addEventListener('click', async () => {
+    if (!savedRecipeMarkdown){
+      errorMsg.textContent = 'Save a recipe first, then copy the saved version.';
+      errorMsg.hidden = false;
+      return;
+    }
+    try {
+      await copyText(savedRecipeMarkdown);
+      const original = copySavedBtn.textContent;
+      copySavedBtn.textContent = 'Copied!';
+      setTimeout(() => { copySavedBtn.textContent = original; }, 1500);
+    } catch (e) {
+      errorMsg.textContent = 'Copy saved output is unavailable right now.';
+      errorMsg.hidden = false;
+    }
+  });
+
+  clearSavedBtn.addEventListener('click', () => {
+    clearSavedRecipe();
+  });
 
   function addIngredientsFromText(text){
     const parts = text.split(',').map(part => part.trim()).filter(Boolean);
@@ -718,12 +920,10 @@
   });
 
   document.getElementById('servings-minus').addEventListener('click', () => {
-    servings = Math.max(1, servings - 1);
-    servingsValue.textContent = servings;
+    setServings(servings - 1);
   });
   document.getElementById('servings-plus').addEventListener('click', () => {
-    servings = Math.min(12, servings + 1);
-    servingsValue.textContent = servings;
+    setServings(servings + 1);
   });
 
   function escapeHtml(str){
@@ -743,10 +943,16 @@
 
   const DIFFICULTY_BADGE = { Easy: 'badge-sage', Medium: 'badge-marigold', Hard: 'badge-coral' };
 
+  function parseMetaValue(line, label){
+    const pattern = new RegExp('^\\*\\*' + label + ':\\*\\*\\s*(.+)$');
+    const match = line.match(pattern);
+    return match ? match[1].trim() : '';
+  }
+
   // Parses the fixed markdown structure the backend is prompted to produce.
   function parseRecipe(text){
     const lines = text.split('\n');
-    const out = { title: '', tagline: '', servings: '', time: '', difficulty: '', ingredients: [], steps: [], tip: '', bodyHtml: '' };
+    const out = { title: '', tagline: '', servings: '', prep: '', cook: '', rest: '', calories: '', difficulty: '', ingredients: [], steps: [], tools: [], nutrition: [], tip: '', bodyHtml: '' };
     let section = null;
     let i = 0;
     while (i < lines.length){
@@ -755,20 +961,29 @@
         out.title = line.slice(3).trim();
       } else if (line.startsWith('### ')){
         const h = line.slice(4).trim().toLowerCase();
-        section = h.includes('ingredient') ? 'ingredients' : h.includes('instruction') ? 'steps' : h.includes('tip') ? 'tip' : null;
+        section = h.includes('tool') ? 'tools' : h.includes('ingredient') ? 'ingredients' : h.includes('instruction') ? 'steps' : h.includes('nutrition') ? 'nutrition' : h.includes('tip') ? 'tip' : null;
       } else if (line.startsWith('**Servings:**')){
-        const m = line.match(/\*\*Servings:\*\*\s*([^·]+)·\s*\*\*Time:\*\*\s*([^·]+)·\s*\*\*Difficulty:\*\*\s*(.+)/);
-        if (m){
-          out.servings = m[1].trim();
-          out.time = m[2].trim();
-          out.difficulty = m[3].trim();
-        }
+        out.servings = line.replace('**Servings:**', '').trim();
+      } else if (line.startsWith('**Prep:**')){
+        out.prep = parseMetaValue(line, 'Prep');
+      } else if (line.startsWith('**Cook:**')){
+        out.cook = parseMetaValue(line, 'Cook');
+      } else if (line.startsWith('**Rest:**')){
+        out.rest = parseMetaValue(line, 'Rest');
+      } else if (line.startsWith('**Calories:**')){
+        out.calories = parseMetaValue(line, 'Calories');
+      } else if (line.startsWith('**Difficulty:**')){
+        out.difficulty = parseMetaValue(line, 'Difficulty');
       } else if (line.startsWith('*') && line.endsWith('*') && !line.startsWith('**') && line.length > 1){
         out.tagline = line.slice(1, -1).trim();
       } else if (section === 'ingredients' && line.startsWith('- ')){
         out.ingredients.push(line.slice(2).trim());
       } else if (section === 'steps' && /^\d+\.\s/.test(line)){
         out.steps.push(line.replace(/^\d+\.\s/, '').trim());
+      } else if (section === 'tools' && line.startsWith('- ')){
+        out.tools.push(line.slice(2).trim());
+      } else if (section === 'nutrition' && line.startsWith('- ')){
+        out.nutrition.push(line.slice(2).trim());
       } else if (section === 'tip' && line.trim() !== ''){
         out.tip += (out.tip ? ' ' : '') + line.trim();
       }
@@ -788,6 +1003,10 @@
     return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query);
   }
 
+  function recipeMarkdownFromCurrent(){
+    return currentRecipeMarkdown.trim();
+  }
+
   function renderCard(text, requestMeta, streaming){
     const r = parseRecipe(text);
     const diffClass = DIFFICULTY_BADGE[r.difficulty] || 'badge-marigold';
@@ -803,8 +1022,11 @@
     });
 
     let meta = '';
-    if (r.time) meta += `<span>${ICONS.clock} ${inline(r.time)}</span>`;
-    if (r.servings) meta += `<span>${ICONS.people} ${inline(r.servings)} servings</span>`;
+    if (r.servings) meta += `<span>${ICONS.people} ${inline(r.servings)}</span>`;
+    if (r.prep) meta += `<span>${ICONS.clock} Prep ${inline(r.prep)}</span>`;
+    if (r.cook) meta += `<span>${ICONS.clock} Cook ${inline(r.cook)}</span>`;
+    if (r.rest) meta += `<span>${ICONS.clock} Rest ${inline(r.rest)}</span>`;
+    if (r.calories) meta += `<span>${ICONS.tip} ${inline(r.calories)}</span>`;
 
     const fridgeChips = requestMeta.ingredients.map(ing => `<span class="fridge-chip">${escapeHtml(ing)}</span>`).join('');
 
@@ -830,13 +1052,17 @@
       ${meta ? `<div class="meta-row">${meta}</div>` : ''}
       ${fridgeChips ? `<div class="fridge-chips">${fridgeChips}</div>` : ''}
       <div class="action-row">
+        <button type="button" class="action-btn" id="copy-btn">Copy</button>
         <button type="button" class="action-btn" id="like-btn">${ICONS.heart} <span id="like-label">Like</span></button>
         <button type="button" class="action-btn" id="share-btn">${ICONS.share} Share</button>
+        <button type="button" class="action-btn" id="save-btn">Save</button>
         <button type="button" class="action-btn" id="print-btn">${ICONS.print} Print</button>
       </div>
       <div class="card-body">
+        ${r.tools.length ? `<div class="detail-box"><h4>Kitchen Tools</h4><ul>${r.tools.map(x => `<li class="pill">${inline(x)}</li>`).join('')}</ul></div>` : ''}
         ${ingredientsHtml}
         ${stepsHtml}
+        ${r.nutrition.length ? `<div class="detail-box"><h4>Nutrition</h4><ul>${r.nutrition.map(x => `<li>${inline(x)}</li>`).join('')}</ul></div>` : ''}
         ${tipHtml}
         ${streaming && !r.steps.length ? `<p>${cursor}</p>` : ''}
       </div>
@@ -851,6 +1077,32 @@
   function wireActions(recipe){
     const likeBtn = document.getElementById('like-btn');
     const likeLabel = document.getElementById('like-label');
+
+    document.getElementById('copy-btn').addEventListener('click', async () => {
+      try {
+        await copyText(recipeMarkdownFromCurrent());
+        const btn = document.getElementById('copy-btn');
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = original; }, 1500);
+      } catch (e) {
+        errorMsg.textContent = 'Copy is unavailable right now.';
+        errorMsg.hidden = false;
+      }
+    });
+
+    document.getElementById('save-btn').addEventListener('click', () => {
+      if (!saveCurrentRecipe()){
+        errorMsg.textContent = 'Generate a recipe before saving it.';
+        errorMsg.hidden = false;
+        return;
+      }
+      const btn = document.getElementById('save-btn');
+      const original = btn.textContent;
+      btn.textContent = 'Saved!';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+
     likeBtn.addEventListener('click', () => {
       liked = !liked;
       likeBtn.classList.toggle('liked', liked);
@@ -860,12 +1112,12 @@
     document.getElementById('print-btn').addEventListener('click', () => window.print());
 
     document.getElementById('share-btn').addEventListener('click', async () => {
-      const text = `${recipe.title}\n\n${recipe.tagline}\n\nIngredients:\n${recipe.ingredients.map(i => '- ' + i).join('\n')}\n\nInstructions:\n${recipe.steps.map((s, i) => (i+1) + '. ' + s).join('\n')}\n\nYouTube: ${youtubeSearchUrl(recipe)}`;
+      const text = `${recipeMarkdownFromCurrent()}\n\nYouTube: ${youtubeSearchUrl(recipe)}`;
       if (navigator.share){
         try { await navigator.share({ title: recipe.title, text }); } catch (e) { /* user cancelled */ }
       } else {
         try {
-          await navigator.clipboard.writeText(text);
+          await copyText(text);
           const btn = document.getElementById('share-btn');
           const original = btn.innerHTML;
           btn.innerHTML = 'Copied!';
@@ -873,6 +1125,7 @@
         } catch (e) { /* clipboard unavailable */ }
       }
     });
+
   }
 
   async function generateRecipe(){
@@ -888,6 +1141,7 @@
     cardEmpty.hidden = true;
     cardInner.hidden = false;
     liked = false;
+    currentRecipeMarkdown = '';
 
     const requestMeta = {
       ingredients: [...ingredients],
@@ -941,6 +1195,7 @@
       }
 
       if (!raw.trim()) throw new Error('No response received.');
+      currentRecipeMarkdown = raw;
       renderCard(raw, requestMeta, false);
     } catch (err){
       errorMsg.textContent = 'Something went wrong writing that recipe. Please try again.';

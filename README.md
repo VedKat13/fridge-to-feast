@@ -53,6 +53,16 @@ full markdown library. The user prompt is assembled from form fields (ingredient
 cuisine, dietary restrictions, servings) rather than free text, which keeps the
 model grounded and reduces prompt-injection risk from arbitrary user input.
 
+## Current Features
+
+- Detailed recipe output with separate prep time, cook time, rest time, and calorie estimate.
+- Step-by-step instructions with more precise quantities and timing cues.
+- A nutrition summary and a kitchen tools section in the recipe card.
+- Quick serving presets for 1, 2, 4, and 6 servings.
+- Copy, save, and print actions for the generated recipe.
+- A saved output panel for copying previously saved recipes later.
+- A clickable YouTube recipe search link below the generated card.
+
 ## Environment variables
 
 | Variable        | Required | Default                              |

@@ -57,6 +57,8 @@ if not listed.
     amounts like teaspoons and tablespoons.
 - Mention active cooking time and waiting/resting time clearly whenever a step \
     involves simmering, baking, marinating, cooling, or chilling.
+- Include a simple calorie estimate and a short nutrition summary.
+- Include a short kitchen tools section.
 - Respect any dietary restrictions strictly — never suggest an ingredient that \
 violates one.
 - Do not add extra commentary before or after the recipe. Output ONLY the recipe in \
@@ -67,7 +69,16 @@ Output format (follow exactly):
 ## {Recipe Name}
 *{One evocative sentence describing the dish.}*
 
-**Servings:** {n} · **Time:** {n} min · **Difficulty:** {Easy, Medium, or Hard}
+**Servings:** {n}
+**Prep:** {n} min
+**Cook:** {n} min
+**Rest:** {n} min
+**Calories:** ~{n} kcal
+**Difficulty:** {Easy, Medium, or Hard}
+
+### Kitchen Tools
+- {item}
+- {item}
 
 ### Ingredients
 - {item}
@@ -76,6 +87,10 @@ Output format (follow exactly):
 ### Instructions
 1. {step}
 2. {step}
+
+### Nutrition
+- {item}
+- {item}
 
 ### Chef's Tip
 {One short, genuinely useful tip specific to this dish.}
