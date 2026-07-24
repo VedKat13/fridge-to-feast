@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fridge → Feast</title>
+<meta name="description" content="Tell us what's in your fridge. Get a written recipe card." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream: #FBF3E4;
+    --card: #FFFFFF;
+    --line: #F0E4CC;
+    --ink: #33281A;
+    --ink-soft: #8C7C64;
+    --marigold: #F2994A;
+    --marigold-deep: #DC7C2C;
+    --butter: #FFD87A;
+    --sage: #379A5C;
+    --sage-bg: #E1F5E7;
+    --sky: #3D7BD9;
+    --sky-bg: #E6EFFC;
+    --coral: #E1543C;
+    --coral-bg: #FDE7E1;
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 999px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin: 0;
+    background: var(--cream);
+    background-image: radial-gradient(circle at 1px 1px, rgba(51,40,26,0.05) 1px, transparent 0);
+    background-size: 24px 24px;
+    color: var(--ink);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+  }
+
+  ::selection{ background: var(--butter); color: var(--ink); }
+
+  :focus-visible{
+    outline: 2.5px solid var(--marigold);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  h1, h2, h3{ font-family: 'Baloo 2', sans-serif; margin: 0; }
+
+  /* ---------- Header ---------- */
+
+  .site-header{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 26px 32px 6px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .mascot{
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .site-header .wordmark{
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+  }
+  .site-header .wordmark .arrow{ color: var(--marigold); }
+
+  /* ---------- Layout ---------- */
+
+  .app{
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 18px 32px 70px;
+    align-items: flex-start;
+  }
+
+  /* ---------- Pantry / builder card ---------- */
+
+  .pantry{
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 30px 28px;
+    box-shadow: 0 20px 45px -28px rgba(51,40,26,0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .hero-copy h1{
+    font-size: 27px;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .hero-copy h1 .arrow{ color: var(--marigold); }
+  .hero-copy p{
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .field{ display: flex; flex-direction: column; gap: 9px; }
+
+  .field > label{
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink-soft);
+    letter-spacing: 0.01em;
+  }
+
+  .tag-input{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    background: var(--cream);
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    padding: 10px 12px;
+    min-height: 50px;
+  }
+  .tag-input:focus-within{ border-color: var(--marigold); }
+
+  .ingredient-chip{
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 6px 8px 6px 13px;
+    border-radius: var(--radius-sm);
+    line-height: 1;
+    white-space: nowrap;
+  }
+  /* rotating pastel palette so chips read as colorful and alive */
+  .chip-c0{ background: #FFE7B0; color: #8A5A00; }
+  .chip-c1{ background: #FFD3C4; color: #A23A11; }
+  .chip-c2{ background: #D6F0DD; color: #1E7A44; }
+  .chip-c3{ background: #DCE8FC; color: #2456A8; }
+  .chip-c4{ background: #F2DCF7; color: #7C2E92; }
+  .chip-c5{ background: #FFF0AE; color: #8A6E00; }
+
+  .ingredient-chip button{
+    all: unset;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    font-size: 11px;
+    opacity: 0.6;
+  }
+  .ingredient-chip button:hover{ opacity: 1; background: rgba(0,0,0,0.1); }
+
+  #ingredient-input{
+    all: unset;
+    flex: 1;
+    min-width: 130px;
+    color: var(--ink);
+    font-size: 14.5px;
+    font-weight: 600;
+    padding: 4px 2px;
+  }
+  #ingredient-input::placeholder{ color: #B9A98D; font-weight: 600; }
+
+  .hint{ font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+
+  select{
+    appearance: none;
+    background: var(--cream) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0L5 6L10 0' fill='none' stroke='%238C7C64' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 16px center;
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    color: var(--ink);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 36px 12px 14px;
+    cursor: pointer;
+  }
+  select:focus{ border-color: var(--marigold); outline: none; }
+
+  .chip-group{ display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .chip{
+    all: unset;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: var(--cream);
+    border: 2px solid var(--line);
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  }
+  .chip:hover{ border-color: var(--marigold); color: var(--ink); }
+  .chip.active{
+    background: var(--sage-bg);
+    border-color: var(--sage);
+    color: var(--sage);
+  }
+
+  .servings-field{
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .stepper{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--cream);
+    border: 2px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 7px 10px;
+  }
+  .stepper button{
+    all: unset;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--marigold-deep);
+    font-size: 17px;
+    font-weight: 700;
+    border-radius: 50%;
+  }
+  .stepper button:hover{ background: #FFE7B0; }
+  #servings-value{ font-weight: 800; min-width: 16px; text-align: center; }
+
+  .generate-btn{
+    all: unset;
+    cursor: pointer;
+    text-align: center;
+    background: linear-gradient(135deg, var(--marigold), var(--butter));
+    color: #40260A;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 15px 18px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 14px 26px -12px rgba(220,124,44,0.6);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .generate-btn:hover{ transform: translateY(-1px); box-shadow: 0 18px 30px -12px rgba(220,124,44,0.7); }
+  .generate-btn:active{ transform: translateY(0px); }
+  .generate-btn:disabled{ opacity: 0.65; cursor: default; transform: none; }
+
+  .error-msg{
+    color: var(--coral);
+    font-size: 13px;
+    font-weight: 700;
+    margin: -8px 0 0;
+  }
+
+  /* ---------- Recipe stage ---------- */
+
+  .card-stage{ min-height: 400px; }
+
+  .recipe-card{
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 24px 55px -28px rgba(51,40,26,0.4);
+    overflow: hidden;
+  }
+
+  .card-empty{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 440px;
+    color: var(--ink-soft);
+    gap: 16px;
+    padding: 40px;
+  }
+  .card-empty svg{ width: 52px; height: 52px; color: var(--marigold); }
+  .card-empty p{ margin: 0; font-size: 15px; font-weight: 700; max-width: 26ch; line-height: 1.5; }
+
+  .card-hero{
+    background: linear-gradient(135deg, #FFE9BE, #FFD9A0);
+    padding: 30px 34px 26px;
+    position: relative;
+  }
+
+  .card-hero .fridge-badge{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.65);
+    padding: 5px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #8A5A00;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .card-content h2{
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+
+  .card-content .tagline{
+    font-weight: 700;
+    color: #6B4A15;
+    font-size: 14.5px;
+    margin: 0;
+  }
+
+  .badge-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 18px 34px 0;
+  }
+
+  .badge{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12.5px;
+    font-weight: 800;
+    padding: 6px 13px;
+    border-radius: var(--radius-sm);
+  }
+  .badge-sage{ background: var(--sage-bg); color: var(--sage); }
+  .badge-sky{ background: var(--sky-bg); color: var(--sky); }
+  .badge-marigold{ background: #FFEFD3; color: var(--marigold-deep); }
+  .badge-coral{ background: var(--coral-bg); color: var(--coral); }
+
+  .meta-row{
+    display: flex;
+    gap: 22px;
+    padding: 16px 34px 0;
+    color: var(--ink-soft);
+    font-size: 13.5px;
+    font-weight: 700;
+  }
+  .meta-row span{ display: inline-flex; align-items: center; gap: 6px; }
+  .meta-row svg{ width: 16px; height: 16px; }
+
+  .fridge-chips{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 16px 34px 0;
+  }
+  .fridge-chip{
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: var(--cream);
+    border: 1.5px solid var(--line);
+    padding: 5px 11px;
+    border-radius: var(--radius-sm);
+  }
+
+  .action-row{
+    display: flex;
+    gap: 10px;
+    padding: 20px 34px 4px;
+  }
+  .action-btn{
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--ink-soft);
+    background: var(--cream);
+    border: 2px solid var(--line);
+    padding: 9px 15px;
+    border-radius: var(--radius-sm);
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .action-btn svg{ width: 15px; height: 15px; }
+  .action-btn:hover{ border-color: var(--marigold); color: var(--marigold-deep); }
+  .action-btn.liked{ background: var(--coral-bg); border-color: var(--coral); color: var(--coral); }
+
+  .card-body{ padding: 8px 34px 36px; }
+
+  .card-body h3{
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--marigold-deep);
+    margin: 30px 0 14px;
+  }
+  .card-body h3:first-child{ margin-top: 22px; }
+
+  .card-body ul{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+  .card-body ul li{
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+    padding-left: 24px;
+    position: relative;
+  }
+  .card-body ul li::before{
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--butter);
+    border: 2px solid var(--marigold);
+  }
+
+  .card-body ol{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: step;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .card-body ol li{
+    counter-increment: step;
+    background: var(--cream);
+    border-radius: var(--radius-md);
+    padding: 14px 16px 14px 52px;
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.55;
+    position: relative;
+  }
+  .card-body ol li::before{
+    content: counter(step);
+    position: absolute;
+    left: 14px;
+    top: 14px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--marigold);
+    color: #fff;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tip-box{
+    margin-top: 26px;
+    background: var(--sage-bg);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .tip-box svg{ width: 20px; height: 20px; color: var(--sage); flex-shrink: 0; margin-top: 1px; }
+  .tip-box p{ margin: 0; font-size: 14px; font-weight: 700; color: #1E5B37; line-height: 1.5; }
+
+  .card-body p{ font-size: 14.5px; font-weight: 600; line-height: 1.55; margin: 0 0 8px; }
+
+  .cursor{
+    display: inline-block;
+    width: 3px;
+    height: 15px;
+    background: var(--marigold-deep);
+    margin-left: 2px;
+    vertical-align: middle;
+    border-radius: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink{ 50%{ opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce){
+    .cursor{ animation: none; }
+    *{ transition: none !important; }
+  }
+
+  /* ---------- Print ---------- */
+
+  @media print{
+    body{ background: #fff; }
+    .site-header, .pantry, .action-row, .card-hero .fridge-badge{ display: none !important; }
+    .app{ display: block; padding: 0; }
+    .recipe-card{ box-shadow: none; }
+  }
+
+  /* ---------- Responsive ---------- */
+
+  @media (max-width: 900px){
+    .app{ grid-template-columns: 1fr; padding: 12px 18px 60px; }
+    .site-header{ padding: 20px 18px 6px; }
+    .card-hero, .badge-row, .meta-row, .fridge-chips, .action-row, .card-body{ padding-left: 22px; padding-right: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <svg class="mascot" viewBox="0 0 40 40" fill="none">
+    <rect x="6" y="3" width="28" height="34" rx="9" fill="url(#g1)"/>
+    <rect x="11" y="15" width="18" height="2.5" rx="1.25" fill="#40260A" opacity="0.25"/>
+    <circle cx="16" cy="24" r="2" fill="#40260A"/>
+    <circle cx="24" cy="24" r="2" fill="#40260A"/>
+    <path d="M16 29c1.5 1.6 6.5 1.6 8 0" stroke="#40260A" stroke-width="2" stroke-linecap="round"/>
+    <rect x="16" y="6" width="8" height="3" rx="1.5" fill="#40260A" opacity="0.25"/>
+    <defs>
+      <linearGradient id="g1" x1="6" y1="3" x2="34" y2="37" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#FFD87A"/>
+        <stop offset="1" stop-color="#F2994A"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <span class="wordmark">Fridge <span class="arrow">→</span> Feast</span>
+</header>
+
+<div class="app">
+  <aside class="pantry">
+    <div class="hero-copy">
+      <h1>Build your <span class="arrow">magical</span> meal</h1>
+      <p>Tell us what's in the fridge — we'll write the recipe card, live.</p>
+    </div>
+
+    <div class="field">
+      <label for="ingredient-input">Added ingredients</label>
+      <div class="tag-input" id="tag-input">
+        <input type="text" id="ingredient-input" placeholder="Type one, press Enter" autocomplete="off" />
+      </div>
+      <p class="hint">e.g. chicken thighs, spinach, coconut milk</p>
+    </div>
+
+    <div class="field">
+      <label for="cuisine-select">Cuisine</label>
+      <select id="cuisine-select">
+        <option value="Any">Any — surprise me</option>
+        <option>Italian</option>
+        <option>Indian</option>
+        <option>Mexican</option>
+        <option>Thai</option>
+        <option>Mediterranean</option>
+        <option>Chinese</option>
+        <option>Japanese</option>
+        <option>French</option>
+        <option>American</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Dietary needs</label>
+      <div class="chip-group" id="dietary-group">
+        <button type="button" class="chip" data-value="Vegetarian">Vegetarian</button>
+        <button type="button" class="chip" data-value="Vegan">Vegan</button>
+        <button type="button" class="chip" data-value="Gluten-free">Gluten-free</button>
+        <button type="button" class="chip" data-value="Dairy-free">Dairy-free</button>
+        <button type="button" class="chip" data-value="Nut-free">Nut-free</button>
+        <button type="button" class="chip" data-value="Low-carb">Low-carb</button>
+      </div>
+    </div>
+
+    <div class="field servings-field">
+      <label for="servings-value" style="margin:0;">Servings</label>
+      <div class="stepper">
+        <button type="button" id="servings-minus" aria-label="Decrease servings">−</button>
+        <span id="servings-value">2</span>
+        <button type="button" id="servings-plus" aria-label="Increase servings">+</button>
+      </div>
+    </div>
+
+    <button id="generate-btn" class="generate-btn">
+      <span class="btn-label">✨ Generate recipe with AI magic</span>
+    </button>
+    <p id="error-msg" class="error-msg" hidden></p>
+  </aside>
+
+  <main class="card-stage">
+    <div class="recipe-card" id="recipe-card">
+      <div class="card-empty" id="card-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3c-4 3-6 6-6 9.5A6 6 0 0 0 12 19a6 6 0 0 0 6-6.5C18 9 16 6 12 3Z"/>
+          <path d="M12 9c-1.4 1.3-2 2.6-2 4a2 2 0 0 0 4 0"/>
+        </svg>
+        <p>Add a few ingredients and your recipe card will appear right here.</p>
+      </div>
+      <div class="card-inner" id="card-inner" hidden></div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const ingredients = [];
+  const dietary = new Set();
+  let servings = 2;
+  let liked = false;
+
+  const tagInput = document.getElementById('tag-input');
+  const ingredientInput = document.getElementById('ingredient-input');
+  const dietaryGroup = document.getElementById('dietary-group');
+  const cuisineSelect = document.getElementById('cuisine-select');
+  const servingsValue = document.getElementById('servings-value');
+  const generateBtn = document.getElementById('generate-btn');
+  const errorMsg = document.getElementById('error-msg');
+  const cardEmpty = document.getElementById('card-empty');
+  const cardInner = document.getElementById('card-inner');
+  const recipeCard = document.getElementById('recipe-card');
+
+  const CHIP_CLASSES = ['chip-c0','chip-c1','chip-c2','chip-c3','chip-c4','chip-c5'];
+
+  function renderChips(){
+    tagInput.querySelectorAll('.ingredient-chip').forEach(el => el.remove());
+    ingredients.forEach((ing, idx) => {
+      const chip = document.createElement('span');
+      chip.className = 'ingredient-chip ' + CHIP_CLASSES[idx % CHIP_CLASSES.length];
+      chip.innerHTML = `${escapeHtml(ing)} <button type="button" aria-label="Remove ${escapeHtml(ing)}">✕</button>`;
+      chip.querySelector('button').addEventListener('click', () => {
+        ingredients.splice(idx, 1);
+        renderChips();
+      });
+      tagInput.insertBefore(chip, ingredientInput);
+    });
+  }
+
+  ingredientInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ','){
+      e.preventDefault();
+      const val = ingredientInput.value.trim().replace(/,$/, '');
+      if (val && !ingredients.includes(val)){
+        ingredients.push(val);
+        renderChips();
+      }
+      ingredientInput.value = '';
+    } else if (e.key === 'Backspace' && ingredientInput.value === '' && ingredients.length){
+      ingredients.pop();
+      renderChips();
+    }
+  });
+
+  dietaryGroup.addEventListener('click', (e) => {
+    const btn = e.target.closest('.chip');
+    if (!btn) return;
+    const val = btn.dataset.value;
+    if (dietary.has(val)){
+      dietary.delete(val);
+      btn.classList.remove('active');
+    } else {
+      dietary.add(val);
+      btn.classList.add('active');
+    }
+  });
+
+  document.getElementById('servings-minus').addEventListener('click', () => {
+    servings = Math.max(1, servings - 1);
+    servingsValue.textContent = servings;
+  });
+  document.getElementById('servings-plus').addEventListener('click', () => {
+    servings = Math.min(12, servings + 1);
+    servingsValue.textContent = servings;
+  });
+
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  const ICONS = {
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>',
+    people: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.3"/><path d="M15 14.2c2.4.3 4.5 2.4 4.5 5.8"/></svg>',
+    tip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a6 6 0 0 0-4 10.5c.6.5 1 1.4 1 2.5h6c0-1.1.4-2 1-2.5A6 6 0 0 0 12 2Z"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.6-9.5-9C.8 7.4 2.6 4 6 4c2 0 3.3 1 4 2 .7-1 2-2 4-2 3.4 0 5.2 3.4 3.5 7-2.5 4.4-9.5 9-9.5 9Z"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8 15.8 6.2M8.2 13.2l7.6 4.6"/></svg>',
+    print: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="1.5"/><path d="M6 14h12v7H6z"/></svg>'
+  };
+
+  const DIFFICULTY_BADGE = { Easy: 'badge-sage', Medium: 'badge-marigold', Hard: 'badge-coral' };
+
+  // Parses the fixed markdown structure the backend is prompted to produce.
+  function parseRecipe(text){
+    const lines = text.split('\n');
+    const out = { title: '', tagline: '', servings: '', time: '', difficulty: '', ingredients: [], steps: [], tip: '', bodyHtml: '' };
+    let section = null;
+    let i = 0;
+    while (i < lines.length){
+      const line = lines[i];
+      if (line.startsWith('## ')){
+        out.title = line.slice(3).trim();
+      } else if (line.startsWith('### ')){
+        const h = line.slice(4).trim().toLowerCase();
+        section = h.includes('ingredient') ? 'ingredients' : h.includes('instruction') ? 'steps' : h.includes('tip') ? 'tip' : null;
+      } else if (line.startsWith('**Servings:**')){
+        const m = line.match(/\*\*Servings:\*\*\s*([^·]+)·\s*\*\*Time:\*\*\s*([^·]+)·\s*\*\*Difficulty:\*\*\s*(.+)/);
+        if (m){
+          out.servings = m[1].trim();
+          out.time = m[2].trim();
+          out.difficulty = m[3].trim();
+        }
+      } else if (line.startsWith('*') && line.endsWith('*') && !line.startsWith('**') && line.length > 1){
+        out.tagline = line.slice(1, -1).trim();
+      } else if (section === 'ingredients' && line.startsWith('- ')){
+        out.ingredients.push(line.slice(2).trim());
+      } else if (section === 'steps' && /^\d+\.\s/.test(line)){
+        out.steps.push(line.replace(/^\d+\.\s/, '').trim());
+      } else if (section === 'tip' && line.trim() !== ''){
+        out.tip += (out.tip ? ' ' : '') + line.trim();
+      }
+      i++;
+    }
+    return out;
+  }
+
+  function inline(str){
+    return escapeHtml(str)
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>');
+  }
+
+  function renderCard(text, requestMeta, streaming){
+    const r = parseRecipe(text);
+    const diffClass = DIFFICULTY_BADGE[r.difficulty] || 'badge-marigold';
+
+    let badges = '';
+    if (r.difficulty) badges += `<span class="badge ${diffClass}">${inline(r.difficulty)}</span>`;
+    if (requestMeta.cuisine && requestMeta.cuisine !== 'Any'){
+      badges += `<span class="badge badge-sky">${escapeHtml(requestMeta.cuisine)}</span>`;
+    }
+    requestMeta.dietary.forEach(d => {
+      badges += `<span class="badge badge-sage">✓ ${escapeHtml(d)}</span>`;
+    });
+
+    let meta = '';
+    if (r.time) meta += `<span>${ICONS.clock} ${inline(r.time)}</span>`;
+    if (r.servings) meta += `<span>${ICONS.people} ${inline(r.servings)} servings</span>`;
+
+    const fridgeChips = requestMeta.ingredients.map(ing => `<span class="fridge-chip">${escapeHtml(ing)}</span>`).join('');
+
+    const ingredientsHtml = r.ingredients.length
+      ? `<h3>Ingredients</h3><ul>${r.ingredients.map(x => `<li>${inline(x)}</li>`).join('')}</ul>`
+      : '';
+    const stepsHtml = r.steps.length
+      ? `<h3>Instructions</h3><ol>${r.steps.map(x => `<li>${inline(x)}</li>`).join('')}</ol>`
+      : '';
+    const tipHtml = r.tip
+      ? `<div class="tip-box">${ICONS.tip}<p>${inline(r.tip)}</p></div>`
+      : '';
+
+    const cursor = streaming ? '<span class="cursor"></span>' : '';
+
+    cardInner.innerHTML = `
+      <div class="card-hero">
+        <span class="fridge-badge">🍳 From your fridge</span>
+        <h2>${inline(r.title)}${!r.title ? cursor : ''}</h2>
+        ${r.tagline ? `<p class="tagline">${inline(r.tagline)}</p>` : ''}
+      </div>
+      ${badges ? `<div class="badge-row">${badges}</div>` : ''}
+      ${meta ? `<div class="meta-row">${meta}</div>` : ''}
+      ${fridgeChips ? `<div class="fridge-chips">${fridgeChips}</div>` : ''}
+      <div class="action-row">
+        <button type="button" class="action-btn" id="like-btn">${ICONS.heart} <span id="like-label">Like</span></button>
+        <button type="button" class="action-btn" id="share-btn">${ICONS.share} Share</button>
+        <button type="button" class="action-btn" id="print-btn">${ICONS.print} Print</button>
+      </div>
+      <div class="card-body">
+        ${ingredientsHtml}
+        ${stepsHtml}
+        ${tipHtml}
+        ${streaming && !r.steps.length ? `<p>${cursor}</p>` : ''}
+      </div>
+    `;
+
+    if (!streaming){
+      wireActions(r);
+    }
+  }
+
+  function wireActions(recipe){
+    const likeBtn = document.getElementById('like-btn');
+    const likeLabel = document.getElementById('like-label');
+    likeBtn.addEventListener('click', () => {
+      liked = !liked;
+      likeBtn.classList.toggle('liked', liked);
+      likeLabel.textContent = liked ? 'Liked' : 'Like';
+    });
+
+    document.getElementById('print-btn').addEventListener('click', () => window.print());
+
+    document.getElementById('share-btn').addEventListener('click', async () => {
+      const text = `${recipe.title}\n\n${recipe.tagline}\n\nIngredients:\n${recipe.ingredients.map(i => '- ' + i).join('\n')}\n\nInstructions:\n${recipe.steps.map((s, i) => (i+1) + '. ' + s).join('\n')}`;
+      if (navigator.share){
+        try { await navigator.share({ title: recipe.title, text }); } catch (e) { /* user cancelled */ }
+      } else {
+        try {
+          await navigator.clipboard.writeText(text);
+          const btn = document.getElementById('share-btn');
+          const original = btn.innerHTML;
+          btn.innerHTML = 'Copied!';
+          setTimeout(() => { btn.innerHTML = original; }, 1500);
+        } catch (e) { /* clipboard unavailable */ }
+      }
+    });
+  }
+
+  async function generateRecipe(){
+    errorMsg.hidden = true;
+    if (ingredients.length === 0){
+      errorMsg.textContent = 'Add at least one ingredient first.';
+      errorMsg.hidden = false;
+      return;
+    }
+
+    generateBtn.disabled = true;
+    generateBtn.querySelector('.btn-label').textContent = 'Writing your recipe…';
+    cardEmpty.hidden = true;
+    cardInner.hidden = false;
+    liked = false;
+
+    const requestMeta = {
+      ingredients: [...ingredients],
+      cuisine: cuisineSelect.value,
+      dietary: Array.from(dietary),
+      servings
+    };
+
+    let raw = '';
+
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...requestMeta })
+      });
+
+      if (!res.ok || !res.body){
+        throw new Error('Request failed (' + res.status + ')');
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true){
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const events = buffer.split('\n\n');
+        buffer = events.pop();
+
+        for (const evt of events){
+          const line = evt.trim();
+          if (!line.startsWith('data:')) continue;
+          const payload = line.slice(5).trim();
+          if (payload === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(payload);
+            if (parsed.error) throw new Error(parsed.error);
+            if (parsed.token){
+              raw += parsed.token;
+              renderCard(raw, requestMeta, true);
+            }
+          } catch (e){
+            if (e instanceof SyntaxError) continue;
+            throw e;
+          }
+        }
+      }
+
+      if (!raw.trim()) throw new Error('No response received.');
+      renderCard(raw, requestMeta, false);
+    } catch (err){
+      errorMsg.textContent = 'Something went wrong writing that recipe. Please try again.';
+      errorMsg.hidden = false;
+      cardEmpty.hidden = false;
+      cardInner.hidden = true;
+      console.error(err);
+    } finally {
+      generateBtn.disabled = false;
+      generateBtn.querySelector('.btn-label').textContent = '✨ Generate recipe with AI magic';
+    }
+  }
+
+  generateBtn.addEventListener('click', generateRecipe);
+</script>
+
+</body>
+</html>
