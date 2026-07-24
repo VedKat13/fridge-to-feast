@@ -828,6 +828,7 @@
   const dietary = new Set();
   let servings = 2;
   let liked = false;
+  let hasGeneratedRecipe = false;
 
   const tagInput = document.getElementById('tag-input');
   const ingredientInput = document.getElementById('ingredient-input');
@@ -1097,6 +1098,10 @@
     const youtubeUrl = r.title ? youtubeSearchUrl(r) : '';
     const servingSizeText = r.servingSize || '1 bowl or 1 plate, about 250 g';
 
+    cardEmpty.hidden = true;
+    cardEmpty.style.display = 'none';
+    cardInner.hidden = false;
+
     let badges = '';
     if (r.difficulty) badges += `<span class="badge ${diffClass}">${inline(r.difficulty)}</span>`;
     if (requestMeta.cuisine && requestMeta.cuisine !== 'Any'){
@@ -1237,6 +1242,7 @@
     generateBtn.disabled = true;
     generateBtn.querySelector('.btn-label').textContent = 'Writing your recipe…';
     cardEmpty.hidden = true;
+    cardEmpty.style.display = 'none';
     cardInner.hidden = false;
     liked = false;
     currentRecipeMarkdown = '';
@@ -1297,11 +1303,15 @@
 
       if (!raw.trim()) throw new Error('No response received.');
       currentRecipeMarkdown = raw;
+      hasGeneratedRecipe = true;
       renderCard(raw, requestMeta, false);
     } catch (err){
       errorMsg.textContent = 'Something went wrong writing that recipe. Please try again.';
       errorMsg.hidden = false;
-      cardEmpty.hidden = false;
+      if (!hasGeneratedRecipe){
+        cardEmpty.hidden = false;
+        cardEmpty.style.display = '';
+      }
       cardInner.hidden = true;
       console.error(err);
     } finally {
