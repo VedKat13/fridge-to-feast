@@ -73,7 +73,7 @@ Output format (follow exactly):
 *{One evocative sentence describing the dish.}*
 
 **Servings:** {n}
-**Standard serving size:** {1 bowl or 1 plate, about 250 g}
+**Standard serving size:** {about 250 g cooked food, roughly 1 bowl or 1 plate}
 **Prep:** {n} min
 **Cook:** {n} min
 **Rest:** {n} min
@@ -111,6 +111,9 @@ class RecipeRequest(BaseModel):
     cuisine: Optional[str] = "Any"
     dietary: List[str] = []
     servings: int = 2
+    extra_instructions: Optional[str] = ""
+    variation_mode: bool = False
+    previous_titles: List[str] = []
 
 
 def build_user_prompt(req: RecipeRequest) -> str:
@@ -120,6 +123,19 @@ def build_user_prompt(req: RecipeRequest) -> str:
     if req.dietary:
         parts.append(f"Dietary restrictions: {', '.join(req.dietary)}.")
     parts.append(f"Servings needed: {req.servings}.")
+    if req.extra_instructions and req.extra_instructions.strip():
+        parts.append(f"Extra user instructions: {req.extra_instructions.strip()}.")
+    if req.variation_mode:
+        parts.append(
+            "Create a noticeably different recipe from the previous result. "
+            "Prefer a different cooking method, flavor profile, or structure if possible."
+        )
+    if req.previous_titles:
+        parts.append(
+            "Do not repeat or closely resemble these recent recipe titles: "
+            + ", ".join(req.previous_titles)
+            + "."
+        )
     return " ".join(parts)
 
 

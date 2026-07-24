@@ -183,6 +183,43 @@
 
   .hint{ font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
 
+  .instruction-box{
+    min-height: 94px;
+    resize: vertical;
+    line-height: 1.45;
+    padding: 12px 14px;
+    border: 2px solid var(--line);
+    border-radius: 16px;
+    background: var(--cream);
+    color: var(--ink);
+    font: inherit;
+    font-size: 14px;
+  }
+  .instruction-box:focus{ border-color: var(--marigold); outline: none; }
+
+  .new-recipe-row{
+    padding: 12px 34px 26px;
+  }
+  .new-recipe-btn{
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    box-sizing: border-box;
+    background: linear-gradient(135deg, var(--sky), var(--sky-bg));
+    color: #18376F;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 14px 18px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 14px 24px -14px rgba(61,123,217,0.45);
+  }
+  .new-recipe-btn:hover{ transform: translateY(-1px); }
+  .new-recipe-btn:active{ transform: translateY(0); }
+
   select{
     appearance: none;
     background: var(--cream) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0L5 6L10 0' fill='none' stroke='%238C7C64' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 16px center;
@@ -731,6 +768,16 @@
       </div>
     </div>
 
+    <div class="field">
+      <label for="extra-instructions">Other instructions</label>
+      <textarea
+        id="extra-instructions"
+        class="instruction-box"
+        placeholder="Add any extra instruction for the recipe, like 'make it spicy', 'use one pan', or 'keep it under 30 minutes'."
+      ></textarea>
+      <p class="hint">Any special direction entered here is passed to the recipe generator.</p>
+    </div>
+
     <div class="field servings-field">
       <label for="servings-value" style="margin:0;">Servings</label>
       <div class="stepper">
@@ -797,10 +844,12 @@
   const copySavedBtn = document.getElementById('copy-saved-btn');
   const clearSavedBtn = document.getElementById('clear-saved-btn');
   const scaleButtons = document.querySelectorAll('.scale-chip');
+  const extraInstructionsInput = document.getElementById('extra-instructions');
 
   const CHIP_CLASSES = ['chip-c0','chip-c1','chip-c2','chip-c3','chip-c4','chip-c5'];
   let currentRecipeMarkdown = '';
   let savedRecipeMarkdown = localStorage.getItem('fridgeFeastSavedRecipe') || '';
+  let recipeHistory = JSON.parse(localStorage.getItem('fridgeFeastRecipeHistory') || '[]');
 
   function setServings(nextServings){
     servings = Math.min(12, Math.max(1, nextServings));
@@ -852,6 +901,14 @@
     savedRecipeMarkdown = '';
     localStorage.removeItem('fridgeFeastSavedRecipe');
     refreshSavedPanel();
+  }
+
+  function recordRecipeTitle(title){
+    if (!title) return;
+    recipeHistory = recipeHistory.filter(item => item !== title);
+    recipeHistory.push(title);
+    recipeHistory = recipeHistory.slice(-5);
+    localStorage.setItem('fridgeFeastRecipeHistory', JSON.stringify(recipeHistory));
   }
 
   refreshSavedPanel();
@@ -1038,6 +1095,7 @@
     const r = parseRecipe(text);
     const diffClass = DIFFICULTY_BADGE[r.difficulty] || 'badge-marigold';
     const youtubeUrl = r.title ? youtubeSearchUrl(r) : '';
+    const servingSizeText = r.servingSize || '1 bowl or 1 plate, about 250 g';
 
     let badges = '';
     if (r.difficulty) badges += `<span class="badge ${diffClass}">${inline(r.difficulty)}</span>`;
@@ -1074,7 +1132,7 @@
         <span class="fridge-badge">🍳 From your fridge</span>
         <h2>${inline(r.title)}${!r.title ? cursor : ''}</h2>
         ${r.tagline ? `<p class="tagline">${inline(r.tagline)}</p>` : ''}
-        ${r.servingSize ? `<span class="serving-size-note">Standard serving size: ${inline(r.servingSize)}</span>` : ''}
+        <span class="serving-size-note">Standard serving size: ${inline(servingSizeText)}</span>
       </div>
       ${badges ? `<div class="badge-row">${badges}</div>` : ''}
       ${meta ? `<div class="meta-row">${meta}</div>` : ''}
@@ -1100,9 +1158,11 @@
         ${streaming && !r.steps.length ? `<p>${cursor}</p>` : ''}
       </div>
       ${youtubeUrl ? `<div class="video-link"><a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer">Watch a related YouTube recipe</a></div>` : ''}
+      ${!streaming ? `<div class="new-recipe-row"><button type="button" class="new-recipe-btn" id="new-recipe-btn">New recipe</button></div>` : ''}
     `;
 
     if (!streaming){
+      recordRecipeTitle(r.title);
       wireActions(r);
     }
   }
@@ -1144,6 +1204,10 @@
 
     document.getElementById('print-btn').addEventListener('click', () => window.print());
 
+    document.getElementById('new-recipe-btn').addEventListener('click', () => {
+      generateRecipe({ variationMode: true });
+    });
+
     document.getElementById('share-btn').addEventListener('click', async () => {
       const text = `${recipeMarkdownFromCurrent()}\n\nYouTube: ${youtubeSearchUrl(recipe)}`;
       if (navigator.share){
@@ -1161,7 +1225,8 @@
 
   }
 
-  async function generateRecipe(){
+  async function generateRecipe(options = {}){
+    const variationMode = Boolean(options.variationMode);
     errorMsg.hidden = true;
     if (ingredients.length === 0){
       errorMsg.textContent = 'Add at least one ingredient first.';
@@ -1180,7 +1245,10 @@
       ingredients: [...ingredients],
       cuisine: cuisineSelect.value,
       dietary: Array.from(dietary),
-      servings
+      servings,
+      extra_instructions: extraInstructionsInput.value.trim(),
+      variation_mode: variationMode,
+      previous_titles: variationMode ? recipeHistory.slice(-5) : []
     };
 
     let raw = '';
