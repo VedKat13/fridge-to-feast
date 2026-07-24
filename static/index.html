@@ -172,7 +172,7 @@
   #ingredient-input{
     all: unset;
     flex: 1;
-    min-width: 130px;
+    min-width: 90px;
     color: var(--ink);
     font-size: 14.5px;
     font-weight: 600;
@@ -527,6 +527,8 @@
     .app{ grid-template-columns: 1fr; padding: 12px 18px 60px; }
     .site-header{ padding: 20px 18px 6px; }
     .card-hero, .badge-row, .meta-row, .fridge-chips, .action-row, .card-body{ padding-left: 22px; padding-right: 22px; }
+    .tag-input{ align-items: flex-start; }
+    #ingredient-input{ min-width: 100%; flex-basis: 100%; }
   }
 </style>
 </head>
@@ -560,7 +562,7 @@
     <div class="field">
       <label for="ingredient-input">Added ingredients</label>
       <div class="tag-input" id="tag-input">
-        <input type="text" id="ingredient-input" placeholder="Type one, press Enter" autocomplete="off" />
+        <input type="text" id="ingredient-input" placeholder="Type one, press Enter or comma" autocomplete="off" />
       </div>
       <p class="hint">e.g. chicken thighs, spinach, coconut milk</p>
     </div>
@@ -641,6 +643,25 @@
 
   const CHIP_CLASSES = ['chip-c0','chip-c1','chip-c2','chip-c3','chip-c4','chip-c5'];
 
+  function addIngredientsFromText(text){
+    const parts = text.split(',').map(part => part.trim()).filter(Boolean);
+    let added = false;
+    parts.forEach(part => {
+      if (!ingredients.includes(part)){
+        ingredients.push(part);
+        added = true;
+      }
+    });
+    if (added) renderChips();
+  }
+
+  function commitIngredientInput(){
+    const value = ingredientInput.value.trim();
+    if (!value) return;
+    addIngredientsFromText(value);
+    ingredientInput.value = '';
+  }
+
   function renderChips(){
     tagInput.querySelectorAll('.ingredient-chip').forEach(el => el.remove());
     ingredients.forEach((ing, idx) => {
@@ -658,15 +679,16 @@
   ingredientInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ','){
       e.preventDefault();
-      const val = ingredientInput.value.trim().replace(/,$/, '');
-      if (val && !ingredients.includes(val)){
-        ingredients.push(val);
-        renderChips();
-      }
-      ingredientInput.value = '';
+      commitIngredientInput();
     } else if (e.key === 'Backspace' && ingredientInput.value === '' && ingredients.length){
       ingredients.pop();
       renderChips();
+    }
+  });
+
+  ingredientInput.addEventListener('input', () => {
+    if (ingredientInput.value.includes(',')){
+      commitIngredientInput();
     }
   });
 
