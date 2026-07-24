@@ -342,14 +342,14 @@
     margin-bottom: 12px;
   }
 
-  .card-content h2{
+  .card-hero h2{
     font-size: 28px;
     font-weight: 700;
     line-height: 1.15;
     margin-bottom: 6px;
   }
 
-  .card-content .tagline{
+  .card-hero .tagline{
     font-weight: 700;
     color: #6B4A15;
     font-size: 14.5px;
@@ -567,29 +567,54 @@
     letter-spacing: 0.06em;
     color: var(--marigold-deep);
   }
-  .detail-box ul{
+  .tools-list,
+  .nutrition-list{
+    list-style: none;
     margin: 0;
     padding: 0;
-    list-style: none;
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-direction: column;
+    gap: 10px;
   }
-  .detail-box li,
-  .detail-box p{
+  .tools-list li,
+  .nutrition-list li{
+    margin: 0;
+    padding: 0;
     font-size: 14px;
     font-weight: 600;
     line-height: 1.5;
-    margin: 0;
   }
-  .detail-box .pill{
+  .tools-list li{
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    width: fit-content;
     background: var(--cream);
     border: 1.5px solid var(--line);
     padding: 6px 10px;
     border-radius: var(--radius-sm);
+  }
+  .nutrition-list li{
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--cream);
+    border: 1.5px solid var(--line);
+    padding: 9px 12px;
+    border-radius: 14px;
+  }
+  .nutrition-list li span:first-child{ color: var(--ink-soft); font-weight: 700; }
+  .nutrition-list li strong{ color: var(--ink); }
+
+  .serving-size-note{
+    display: inline-flex;
+    margin-top: 10px;
+    padding: 6px 11px;
+    border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.58);
+    font-size: 12px;
+    font-weight: 800;
+    color: #8A5A00;
   }
 
   .video-link{
@@ -952,7 +977,7 @@
   // Parses the fixed markdown structure the backend is prompted to produce.
   function parseRecipe(text){
     const lines = text.split('\n');
-    const out = { title: '', tagline: '', servings: '', prep: '', cook: '', rest: '', calories: '', difficulty: '', ingredients: [], steps: [], tools: [], nutrition: [], tip: '', bodyHtml: '' };
+    const out = { title: '', tagline: '', servings: '', servingSize: '', prep: '', cook: '', rest: '', calories: '', difficulty: '', ingredients: [], steps: [], tools: [], nutrition: [], tip: '', bodyHtml: '' };
     let section = null;
     let i = 0;
     while (i < lines.length){
@@ -964,6 +989,8 @@
         section = h.includes('tool') ? 'tools' : h.includes('ingredient') ? 'ingredients' : h.includes('instruction') ? 'steps' : h.includes('nutrition') ? 'nutrition' : h.includes('tip') ? 'tip' : null;
       } else if (line.startsWith('**Servings:**')){
         out.servings = line.replace('**Servings:**', '').trim();
+      } else if (line.startsWith('**Standard serving size:**')){
+        out.servingSize = line.replace('**Standard serving size:**', '').trim();
       } else if (line.startsWith('**Prep:**')){
         out.prep = parseMetaValue(line, 'Prep');
       } else if (line.startsWith('**Cook:**')){
@@ -1047,6 +1074,7 @@
         <span class="fridge-badge">🍳 From your fridge</span>
         <h2>${inline(r.title)}${!r.title ? cursor : ''}</h2>
         ${r.tagline ? `<p class="tagline">${inline(r.tagline)}</p>` : ''}
+        ${r.servingSize ? `<span class="serving-size-note">Standard serving size: ${inline(r.servingSize)}</span>` : ''}
       </div>
       ${badges ? `<div class="badge-row">${badges}</div>` : ''}
       ${meta ? `<div class="meta-row">${meta}</div>` : ''}
@@ -1059,10 +1087,15 @@
         <button type="button" class="action-btn" id="print-btn">${ICONS.print} Print</button>
       </div>
       <div class="card-body">
-        ${r.tools.length ? `<div class="detail-box"><h4>Kitchen Tools</h4><ul>${r.tools.map(x => `<li class="pill">${inline(x)}</li>`).join('')}</ul></div>` : ''}
+        ${r.tools.length ? `<div class="detail-box"><h4>Kitchen Tools</h4><ul class="tools-list">${r.tools.map(x => `<li>${inline(x)}</li>`).join('')}</ul></div>` : ''}
         ${ingredientsHtml}
         ${stepsHtml}
-        ${r.nutrition.length ? `<div class="detail-box"><h4>Nutrition</h4><ul>${r.nutrition.map(x => `<li>${inline(x)}</li>`).join('')}</ul></div>` : ''}
+        ${r.nutrition.length ? `<div class="detail-box"><h4>Nutrition per serving</h4><ul class="nutrition-list">${r.nutrition.map(x => {
+          const parts = x.split(':');
+          const label = parts.shift();
+          const value = parts.join(':').trim();
+          return `<li><span>${inline(label)}</span><strong>${inline(value)}</strong></li>`;
+        }).join('')}</ul></div>` : ''}
         ${tipHtml}
         ${streaming && !r.steps.length ? `<p>${cursor}</p>` : ''}
       </div>

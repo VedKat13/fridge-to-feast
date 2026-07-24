@@ -57,7 +57,10 @@ if not listed.
     amounts like teaspoons and tablespoons.
 - Mention active cooking time and waiting/resting time clearly whenever a step \
     involves simmering, baking, marinating, cooling, or chilling.
-- Include a simple calorie estimate and a short nutrition summary.
+- Use a standard serving size of 1 bowl or 1 plate per serving and keep nutrition \
+    values per serving.
+- Include exact estimated nutrition per serving with calories, protein, carbs, fat, \
+    fiber, sugar, and sodium.
 - Include a short kitchen tools section.
 - Respect any dietary restrictions strictly — never suggest an ingredient that \
 violates one.
@@ -70,6 +73,7 @@ Output format (follow exactly):
 *{One evocative sentence describing the dish.}*
 
 **Servings:** {n}
+**Standard serving size:** {1 bowl or 1 plate, about 250 g}
 **Prep:** {n} min
 **Cook:** {n} min
 **Rest:** {n} min
@@ -89,8 +93,13 @@ Output format (follow exactly):
 2. {step}
 
 ### Nutrition
-- {item}
-- {item}
+- Calories: {n} kcal
+- Protein: {n} g
+- Carbohydrates: {n} g
+- Fat: {n} g
+- Fiber: {n} g
+- Sugar: {n} g
+- Sodium: {n} mg
 
 ### Chef's Tip
 {One short, genuinely useful tip specific to this dish.}
