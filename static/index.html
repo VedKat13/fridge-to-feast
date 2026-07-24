@@ -494,6 +494,17 @@
   .tip-box svg{ width: 20px; height: 20px; color: var(--sage); flex-shrink: 0; margin-top: 1px; }
   .tip-box p{ margin: 0; font-size: 14px; font-weight: 700; color: #1E5B37; line-height: 1.5; }
 
+  .video-link{
+    padding: 0 34px 24px;
+    text-align: right;
+  }
+  .video-link a{
+    color: var(--marigold-deep);
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .video-link a:hover{ text-decoration: underline; }
+
   .card-body p{ font-size: 14.5px; font-weight: 600; line-height: 1.55; margin: 0 0 8px; }
 
   .cursor{
@@ -772,9 +783,15 @@
       .replace(/\*(.+?)\*/g, '<em>$1</em>');
   }
 
+  function youtubeSearchUrl(recipe){
+    const query = [recipe.title, 'recipe', 'tutorial'].filter(Boolean).join(' ');
+    return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query);
+  }
+
   function renderCard(text, requestMeta, streaming){
     const r = parseRecipe(text);
     const diffClass = DIFFICULTY_BADGE[r.difficulty] || 'badge-marigold';
+    const youtubeUrl = r.title ? youtubeSearchUrl(r) : '';
 
     let badges = '';
     if (r.difficulty) badges += `<span class="badge ${diffClass}">${inline(r.difficulty)}</span>`;
@@ -823,6 +840,7 @@
         ${tipHtml}
         ${streaming && !r.steps.length ? `<p>${cursor}</p>` : ''}
       </div>
+      ${youtubeUrl ? `<div class="video-link"><a href="${youtubeUrl}" target="_blank" rel="noopener noreferrer">Watch a related YouTube recipe</a></div>` : ''}
     `;
 
     if (!streaming){
@@ -842,7 +860,7 @@
     document.getElementById('print-btn').addEventListener('click', () => window.print());
 
     document.getElementById('share-btn').addEventListener('click', async () => {
-      const text = `${recipe.title}\n\n${recipe.tagline}\n\nIngredients:\n${recipe.ingredients.map(i => '- ' + i).join('\n')}\n\nInstructions:\n${recipe.steps.map((s, i) => (i+1) + '. ' + s).join('\n')}`;
+      const text = `${recipe.title}\n\n${recipe.tagline}\n\nIngredients:\n${recipe.ingredients.map(i => '- ' + i).join('\n')}\n\nInstructions:\n${recipe.steps.map((s, i) => (i+1) + '. ' + s).join('\n')}\n\nYouTube: ${youtubeSearchUrl(recipe)}`;
       if (navigator.share){
         try { await navigator.share({ title: recipe.title, text }); } catch (e) { /* user cancelled */ }
       } else {

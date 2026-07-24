@@ -52,6 +52,11 @@ Rules:
 - Assume basic pantry staples (salt, pepper, cooking oil, water) are available even \
 if not listed.
 - Keep instructions realistic for a home cook with basic equipment.
+- Make the instructions detailed and step-by-step.
+- Include clear ingredient amounts in the steps when useful, especially spoon-based \
+    amounts like teaspoons and tablespoons.
+- Mention active cooking time and waiting/resting time clearly whenever a step \
+    involves simmering, baking, marinating, cooling, or chilling.
 - Respect any dietary restrictions strictly — never suggest an ingredient that \
 violates one.
 - Do not add extra commentary before or after the recipe. Output ONLY the recipe in \
